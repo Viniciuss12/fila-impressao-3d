@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { PublicClientApplication } from "@azure/msal-browser";
-import { msalConfig } from "./msalConfig";
+import { useMsal } from "@azure/msal-react";
 import ModalCard from "./components/ModalCard";
 import axios from "axios";
 
-const msalInstance = new PublicClientApplication(msalConfig);
 const etapas = ["Solicitado", "Aprovado", "Fila", "Produção", "Finalizado"];
 
 function App() {
+  const { instance, accounts } = useMsal();
   const [conta, setConta] = useState(null);
   const [accessToken, setAccessToken] = useState("");
   const [siteId, setSiteId] = useState("");
@@ -62,11 +61,12 @@ function App() {
 
   const login = async () => {
     try {
-      const res = await msalInstance.loginPopup({
+      const res = await instance.loginPopup({
         scopes: ["Sites.ReadWrite.All", "User.Read"],
       });
       setConta(res.account);
-      const token = await msalInstance.acquireTokenSilent({
+
+      const token = await instance.acquireTokenSilent({
         scopes: ["Sites.ReadWrite.All", "User.Read"],
         account: res.account,
       });
@@ -111,7 +111,7 @@ function App() {
     <div className="min-h-screen bg-gray-100 p-4">
       <h1 className="text-2xl font-bold mb-4">Fila de Impressão 3D</h1>
 
-      {!conta ? (
+      {!accounts || accounts.length === 0 ? (
         <button
           onClick={login}
           className="px-4 py-2 bg-blue-600 text-white rounded"
@@ -120,7 +120,7 @@ function App() {
         </button>
       ) : (
         <div>
-          <p className="mb-4">Bem-vindo, {conta.username}!</p>
+          <p className="mb-4">Bem-vindo, {accounts[0].username}!</p>
 
           <div className="grid grid-cols-5 gap-4">
             {etapas.map((etapa) => (
