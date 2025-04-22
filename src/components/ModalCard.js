@@ -1,17 +1,7 @@
-// src/components/ModalCard.js
-import React, { useState } from "react";
-
+import React from "react";
 const etapas = ["Solicitado", "Aprovado", "Fila", "Produção", "Finalizado"];
 
 export default function ModalCard({ card, onClose, onEtapaChange }) {
-  const [novaEtapa, setNovaEtapa] = useState(card.etapa);
-
-  const handleEtapaChange = (e) => {
-    const nova = e.target.value;
-    setNovaEtapa(nova);
-    onEtapaChange(card, nova);
-  };
-
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white p-6 rounded-xl w-full max-w-xl shadow-xl">
@@ -28,8 +18,8 @@ export default function ModalCard({ card, onClose, onEtapaChange }) {
           <label className="block mt-4">
             <span className="text-sm font-medium">Etapa:</span>
             <select
-              value={novaEtapa}
-              onChange={handleEtapaChange}
+              value={card.etapa}
+              onChange={(e) => onEtapaChange(card, e.target.value)}
               className="w-full border rounded p-2 mt-1"
             >
               {etapas.map((etapa) => (
