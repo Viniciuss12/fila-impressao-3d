@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useMsal } from "@azure/msal-react";
 import ModalCard from "./components/ModalCard";
+import NovoCardForm from "./components/NovoCardForm";
 import axios from "axios";
 
 const etapas = ["Solicitado", "Aprovado", "Fila", "Produção", "Finalizado"];
@@ -12,6 +13,7 @@ function App() {
   const [listaId, setListaId] = useState("");
   const [cards, setCards] = useState([]);
   const [cardSelecionado, setCardSelecionado] = useState(null);
+  const [exibirFormulario, setExibirFormulario] = useState(false);
 
   const carregarCards = async () => {
     try {
@@ -90,6 +92,27 @@ function App() {
     }
   };
 
+  const criarNovaSolicitacao = async (dados) => {
+    try {
+      await axios.post(
+        `https://graph.microsoft.com/v1.0/sites/${siteId}/lists/${listaId}/items`,
+        {
+          fields: {
+            Title: dados.NomePeca,
+            ...dados,
+            Etapa: "Solicitado"
+          }
+        },
+        { headers: { Authorization: `Bearer ${accessToken}` } }
+      );
+      setExibirFormulario(false);
+      carregarCards();
+    } catch (err) {
+      console.error("Erro ao criar solicitação:", err);
+      alert("Erro ao criar solicitação. Verifique os campos e tente novamente.");
+    }
+  };
+
   useEffect(() => {
     if (accessToken && siteId && listaId) {
       carregarCards();
@@ -115,7 +138,15 @@ function App() {
         </button>
       ) : (
         <div>
-          <p className="mb-4">Bem-vindo, {accounts[0].username}!</p>
+          <div className="flex justify-between items-center mb-4">
+            <p>Bem-vindo, {accounts[0].username}!</p>
+            <button
+              onClick={() => setExibirFormulario(true)}
+              className="px-4 py-2 bg-green-600 text-white rounded"
+            >
+              Nova Solicitação
+            </button>
+          </div>
 
           <div className="grid grid-cols-5 gap-4">
             {etapas.map((etapa) => (
@@ -144,6 +175,13 @@ function App() {
           card={cardSelecionado}
           onClose={() => setCardSelecionado(null)}
           onEtapaChange={atualizarEtapa}
+        />
+      )}
+
+      {exibirFormulario && (
+        <NovoCardForm
+          onCriar={criarNovaSolicitacao}
+          onCancelar={() => setExibirFormulario(false)}
         />
       )}
     </div>
