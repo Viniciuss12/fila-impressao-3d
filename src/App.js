@@ -7,7 +7,6 @@ const etapas = ["Solicitado", "Aprovado", "Fila", "Produção", "Finalizado"];
 
 function App() {
   const { instance, accounts } = useMsal();
-  const [conta, setConta] = useState(null);
   const [accessToken, setAccessToken] = useState("");
   const [siteId, setSiteId] = useState("");
   const [listaId, setListaId] = useState("");
@@ -64,7 +63,6 @@ function App() {
       const res = await instance.loginPopup({
         scopes: ["Sites.ReadWrite.All", "User.Read"],
       });
-      setConta(res.account);
 
       const token = await instance.acquireTokenSilent({
         scopes: ["Sites.ReadWrite.All", "User.Read"],
@@ -83,11 +81,8 @@ function App() {
         { Etapa: novaEtapa },
         { headers: { Authorization: `Bearer ${accessToken}` } }
       );
-
-      setCards((prevCards) =>
-        prevCards.map((c) =>
-          c.id === card.id ? { ...c, etapa: novaEtapa } : c
-        )
+      setCards((prev) =>
+        prev.map((c) => (c.id === card.id ? { ...c, etapa: novaEtapa } : c))
       );
       setCardSelecionado(null);
     } catch (err) {
