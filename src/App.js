@@ -3,6 +3,8 @@ import { useMsal } from "@azure/msal-react";
 import ModalCard from "./components/ModalCard";
 import NovoCardForm from "./components/NovoCardForm";
 import axios from "axios";
+import msalConfig from "./msalConfig"; // ✅ Esta linha aqui
+
 
 const etapas = ["Solicitado", "Aprovado", "Fila", "Produção", "Finalizado"];
 
